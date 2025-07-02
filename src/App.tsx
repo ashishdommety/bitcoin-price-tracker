@@ -10,7 +10,7 @@ const App = () => {
 
   const getProfitOrLoss = (): string | null => {
     if (livePrice && startingPrice) {
-      const difference = (startingPrice - livePrice).toFixed(2);
+      const difference = (livePrice - startingPrice).toFixed(2);
       return `$${difference}`;
     }
     return null;
@@ -29,7 +29,7 @@ const App = () => {
             <h2>
               Difference:{" "}
               <span style={isProfit ? { color: "green" } : { color: "red" }}>
-                {isProfit ? "" : "-"}
+                {isProfit ? "+" : "-"}
                 {getProfitOrLoss()}
                 {isProfit ? " 😃" : " 🙁"}
               </span>
