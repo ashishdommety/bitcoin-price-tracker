@@ -1,53 +1,16 @@
 import "./App.css";
-import { useEffect, useState } from "react";
-import fetchBitcoinStartingPrice from "./api";
 import { SkewLoader } from "react-spinners";
+import { useBitcoinPrice } from "./customHooks";
 
 const App = () => {
-  const [price, newPrice] = useState<number | null>(null);
-  const [startingPrice, setStartingPrice] = useState<number | null>(null);
-
-  useEffect(() => {
-    const getPrice = async () => {
-      const morningPrice = await fetchBitcoinStartingPrice();
-      if (morningPrice !== undefined) {
-        setStartingPrice(morningPrice);
-      }
-    };
-
-    getPrice();
-
-    // https://www.bitstamp.net/websocket/v2/
-    const socket = new WebSocket("wss://ws.bitstamp.net");
-
-    socket.onopen = () => {
-      const tradesMsg = {
-        event: "bts:subscribe",
-        data: {
-          channel: "live_trades_btcusd",
-        },
-      };
-
-      socket.send(JSON.stringify(tradesMsg));
-    };
-
-    socket.onmessage = (e) => {
-      const data = JSON.parse(e.data);
-      console.log(data);
-
-      if (data.channel === "live_trades_btcusd" && data.event === "trade") {
-        const tradePrice = data.data.price;
-        newPrice(tradePrice);
-      }
-    };
-  }, []);
+  const { livePrice, startingPrice } = useBitcoinPrice();
 
   const isProfit: boolean =
-    !!price && !!startingPrice && price > startingPrice ? true : false;
+    !!livePrice && !!startingPrice && livePrice > startingPrice ? true : false;
 
   const getProfitOrLoss = (): string | null => {
-    if (price && startingPrice) {
-      const difference = (startingPrice - price).toFixed(2);
+    if (livePrice && startingPrice) {
+      const difference = (startingPrice - livePrice).toFixed(2);
       return `$${difference}`;
     }
     return null;
@@ -57,11 +20,11 @@ const App = () => {
     <>
       <div className="content">
         <h2>This morning Bitcoin was: ${startingPrice}</h2>
-        {price ? (
+        {livePrice ? (
           <>
             <h1>
               Live Price: $
-              <span style={{ textDecoration: "underline" }}>{price}</span>
+              <span style={{ textDecoration: "underline" }}>{livePrice}</span>
             </h1>
             <h2>
               Difference:{" "}
