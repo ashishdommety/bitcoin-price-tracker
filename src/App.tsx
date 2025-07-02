@@ -1,6 +1,6 @@
 import "./App.css";
 import { SkewLoader } from "react-spinners";
-import { useBitcoinPrice } from "./customHooks";
+import { useBitcoinPrice } from "./hooks";
 
 const App = () => {
   const { livePrice, startingPrice } = useBitcoinPrice();
